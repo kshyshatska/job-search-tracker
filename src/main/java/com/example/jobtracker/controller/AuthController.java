@@ -32,10 +32,10 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@ModelAttribute("registration") RegistrationDto registration, RedirectAttributes redirectAttributes) {
         if (!userService.register(registration)) {
-            redirectAttributes.addFlashAttribute("error", "Username already exists or form is incomplete.");
+            redirectAttributes.addFlashAttribute("error", "Користувач уже існує або форма заповнена не повністю.");
             return "redirect:/register";
         }
-        redirectAttributes.addFlashAttribute("message", "Account created. You can log in now.");
+        redirectAttributes.addFlashAttribute("message", "Акаунт створено. Тепер можна увійти.");
         return "redirect:/login";
     }
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Job Search Tracker</title>
+    <title>Вхід | Job Search Tracker</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="login-body">
@@ -15,24 +15,22 @@
         </div>
 
         <form class="form-stack" th:action="@{/login}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
             <label>
-                Email or username
+                Email або логін
                 <input type="text" name="username" placeholder="student@example.com" required autofocus>
             </label>
 
             <label>
-                Password
+                Пароль
                 <input type="password" name="password" placeholder="password123" required>
             </label>
 
-            <button class="button primary" type="submit">Log in</button>
+            <button class="button primary" type="submit">Увійти</button>
 
-            <p class="alert error" th:if="${param.error}">Invalid username or password.</p>
-            <p class="alert success" th:if="${param.logout}">You have been logged out.</p>
-            <p class="alert success" th:if="${message}" th:text="${message}">Account created.</p>
-            <p class="auth-switch"><a class="text-link" th:href="@{/register}">Create account</a></p>
+            <p class="alert error" th:if="${param.error}">Неправильний логін або пароль.</p>
+            <p class="alert success" th:if="${param.logout}">Ви вийшли з акаунта.</p>
+            <p class="alert success" th:if="${message}" th:text="${message}">Акаунт створено.</p>
+            <p class="auth-switch"><a class="text-link" th:href="@{/register}">Створити акаунт</a></p>
         </form>
     </section>
 </main>

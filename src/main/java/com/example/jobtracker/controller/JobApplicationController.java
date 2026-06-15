@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 public class JobApplicationController {
 
@@ -29,6 +31,7 @@ public class JobApplicationController {
         model.addAttribute("statuses", ApplicationStatus.values());
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("applicationsByStatus", jobApplicationService.groupedByStatusForCurrentUser(sortBy));
+        model.addAttribute("statusLabels", statusLabels());
         return "applications/list";
     }
 
@@ -43,6 +46,8 @@ public class JobApplicationController {
         model.addAttribute("jobApplication", jobApplicationService.findOneForCurrentUser(id));
         model.addAttribute("statuses", ApplicationStatus.values());
         model.addAttribute("priorities", ApplicationPriority.values());
+        model.addAttribute("statusLabels", statusLabels());
+        model.addAttribute("priorityLabels", priorityLabels());
         return "applications/edit";
     }
 
@@ -53,8 +58,18 @@ public class JobApplicationController {
             @RequestParam(required = false) String newNoteText,
             RedirectAttributes redirectAttributes) {
         jobApplicationService.updateApplication(id, jobApplication, newNoteText);
-        redirectAttributes.addFlashAttribute("message", "Application updated.");
+        redirectAttributes.addFlashAttribute("message", "Заявку оновлено.");
         return "redirect:/applications/" + id;
+    }
+
+    @PostMapping("/applications/{id}/status")
+    public String updateStatus(
+            @PathVariable Long id,
+            @RequestParam ApplicationStatus status,
+            RedirectAttributes redirectAttributes) {
+        jobApplicationService.updateStatus(id, status);
+        redirectAttributes.addFlashAttribute("message", "Статус оновлено.");
+        return "redirect:/applications";
     }
 
     @PostMapping("/applications/{applicationId}/notes/{noteId}/delete")
@@ -63,14 +78,32 @@ public class JobApplicationController {
             @PathVariable Long noteId,
             RedirectAttributes redirectAttributes) {
         jobApplicationService.deleteNote(applicationId, noteId);
-        redirectAttributes.addFlashAttribute("message", "Note deleted.");
+        redirectAttributes.addFlashAttribute("message", "Нотатку видалено.");
         return "redirect:/applications/" + applicationId;
     }
 
     @PostMapping("/applications/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         jobApplicationService.deleteApplication(id);
-        redirectAttributes.addFlashAttribute("message", "Application deleted.");
+        redirectAttributes.addFlashAttribute("message", "Заявку видалено.");
         return "redirect:/applications";
+    }
+
+    private Map<ApplicationStatus, String> statusLabels() {
+        return Map.of(
+                ApplicationStatus.SAVED, "Збережено",
+                ApplicationStatus.APPLIED, "Подано",
+                ApplicationStatus.INTERVIEW, "Співбесіда",
+                ApplicationStatus.OFFER, "Офер",
+                ApplicationStatus.REJECTED, "Відмова"
+        );
+    }
+
+    private Map<ApplicationPriority, String> priorityLabels() {
+        return Map.of(
+                ApplicationPriority.LOW, "Низький",
+                ApplicationPriority.MEDIUM, "Середній",
+                ApplicationPriority.HIGH, "Високий"
+        );
     }
 }

@@ -96,12 +96,36 @@ public class JobApplicationDto {
         this.status = status;
     }
 
+    public String getStatusLabel() {
+        if (status == null) {
+            return "";
+        }
+        return switch (status) {
+            case SAVED -> "Збережено";
+            case APPLIED -> "Подано";
+            case INTERVIEW -> "Співбесіда";
+            case OFFER -> "Офер";
+            case REJECTED -> "Відмова";
+        };
+    }
+
     public ApplicationPriority getPriority() {
         return priority;
     }
 
     public void setPriority(ApplicationPriority priority) {
         this.priority = priority;
+    }
+
+    public String getPriorityLabel() {
+        if (priority == null) {
+            return "";
+        }
+        return switch (priority) {
+            case LOW -> "Низький";
+            case MEDIUM -> "Середній";
+            case HIGH -> "Високий";
+        };
     }
 
     public LocalDateTime getCreatedAt() {

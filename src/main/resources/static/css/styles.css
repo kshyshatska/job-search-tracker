@@ -287,6 +287,14 @@ h2 {
     border-color: #fecdd3;
 }
 
+.disabled-button,
+.button:disabled {
+    background: #f2f4f7;
+    color: #667085;
+    border-color: var(--line);
+    cursor: not-allowed;
+}
+
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -456,6 +464,14 @@ h2 {
 .cards-list {
     display: grid;
     gap: 1rem;
+}
+
+.results-summary {
+    display: flex;
+    justify-content: flex-end;
+    margin: -0.2rem 0 0.9rem;
+    color: var(--muted);
+    font-weight: 750;
 }
 
 .job-card {
@@ -796,10 +812,32 @@ h2 {
     line-height: 1.35;
 }
 
+.kanban-card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
 .kanban-card p {
     margin-bottom: 0;
     color: var(--muted);
     font-size: 0.9rem;
+}
+
+.quick-status-form {
+    margin: 0;
+}
+
+.compact-select {
+    min-height: 36px;
+    padding: 0.45rem 0.65rem;
+    border-color: var(--line-strong);
+    background: #f8fafc;
+    font-size: 0.86rem;
+    font-weight: 750;
 }
 
 .empty-state.compact {

@@ -32,19 +32,25 @@ public class JobSearchController {
         if (!model.containsAttribute("results")) {
             model.addAttribute("results", List.of());
         }
+        model.addAttribute("savedSourceUrls", jobApplicationService.savedSourceUrlsForCurrentUser());
         return "search";
     }
 
     @PostMapping("/jobs/search")
     public String search(@ModelAttribute("searchRequest") JobSearchRequestDto searchRequest, Model model) {
         model.addAttribute("results", joobleApiService.searchJobs(searchRequest));
+        model.addAttribute("savedSourceUrls", jobApplicationService.savedSourceUrlsForCurrentUser());
         return "search";
     }
 
     @PostMapping("/jobs/save")
     public String saveJob(@ModelAttribute JobSearchResultDto result, RedirectAttributes redirectAttributes) {
+        if (jobApplicationService.isSavedSourceUrl(result.getSourceUrl())) {
+            redirectAttributes.addFlashAttribute("message", "Ця вакансія вже є у трекері.");
+            return "redirect:/applications";
+        }
         jobApplicationService.saveFromSearchResult(result);
-        redirectAttributes.addFlashAttribute("message", "Vacancy saved to your tracker.");
+        redirectAttributes.addFlashAttribute("message", "Вакансію збережено у трекер.");
         return "redirect:/applications";
     }
 }

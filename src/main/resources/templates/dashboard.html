@@ -1,46 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Job Search Tracker</title>
+    <title>Дашборд | Job Search Tracker</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <nav class="app-navbar">
     <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
     <div class="navbar-links">
-        <a class="nav-link active" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
-        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
-        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+        <a class="nav-link active" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
+        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
+        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
     </div>
     <form th:action="@{/logout}" method="post" class="logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
     </form>
 </nav>
 
     <main class="content">
         <div class="page-header">
             <div>
-                <h1>Dashboard</h1>
+                <h1>Дашборд</h1>
             </div>
-            <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search</a>
+            <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
         </div>
 
         <section class="metrics-grid">
             <article class="metric-card total-card">
-                <span>Total saved</span>
+                <span>Усього</span>
                 <strong th:text="${totalApplications}">0</strong>
             </article>
             <article class="metric-card" th:each="entry : ${statusCounts}" th:classappend="${#strings.toLowerCase(entry.key.name())}">
-                <span th:text="${#strings.capitalize(#strings.toLowerCase(entry.key.name()))}">Saved</span>
+                <span th:text="${statusLabels.get(entry.key)}">Збережено</span>
                 <strong th:text="${entry.value}">0</strong>
             </article>
         </section>
 
         <section class="progress-panel panel dashboard-band">
-            <h2>Next actions</h2>
+            <h2>Потребують дії</h2>
             <div class="progress-number">
                 <strong th:text="${actionNeeded}">0</strong>
             </div>
@@ -48,7 +47,7 @@
 
         <section class="status-strip panel">
             <div class="status-step" th:each="entry : ${statusCounts}" th:classappend="${#strings.toLowerCase(entry.key.name())}">
-                <span th:text="${#strings.capitalize(#strings.toLowerCase(entry.key.name()))}">Saved</span>
+                <span th:text="${statusLabels.get(entry.key)}">Збережено</span>
                 <strong th:text="${entry.value}">0</strong>
             </div>
         </section>
@@ -56,23 +55,23 @@
         <section class="two-column">
             <article class="panel">
                 <div class="panel-header">
-                    <h2>Recently saved</h2>
+                    <h2>Нещодавні</h2>
                 </div>
                 <div class="empty-state" th:if="${#lists.isEmpty(recentApplications)}"></div>
                 <a class="list-row" th:each="jobApplication : ${recentApplications}" th:href="@{/applications/{id}(id=${jobApplication.id})}">
                     <div>
                         <strong th:text="${jobApplication.title}">Java Developer</strong>
-                        <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</span>
+                        <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Компанія · Hamburg</span>
                     </div>
-                    <span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.status}">SAVED</span>
+                    <span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span>
                 </a>
             </article>
 
             <article class="panel">
                 <div class="panel-header">
-                    <h2>Board</h2>
+                    <h2>Дошка</h2>
                 </div>
-                <a class="button secondary" th:href="@{/applications}"><i data-lucide="columns-3"></i>Open</a>
+                <a class="button secondary" th:href="@{/applications}"><i data-lucide="columns-3"></i>Відкрити</a>
             </article>
         </section>
     </main>

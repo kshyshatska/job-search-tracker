@@ -1,42 +1,41 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Applications | Job Search Tracker</title>
+    <title>Мої заявки | Job Search Tracker</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <nav class="app-navbar">
     <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
     <div class="navbar-links">
-        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
-        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
-        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
+        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
+        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
     </div>
     <form th:action="@{/logout}" method="post" class="logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
     </form>
 </nav>
 
 <main class="content wide-content">
     <div class="page-header">
         <div>
-            <h1>My Applications</h1>
+            <h1>Мої заявки</h1>
         </div>
-        <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="plus"></i>Add</a>
+        <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="plus"></i>Додати</a>
     </div>
 
-    <p class="alert success" th:if="${message}" th:text="${message}">Saved.</p>
+    <p class="alert success" th:if="${message}" th:text="${message}">Збережено.</p>
 
     <form class="sort-bar" th:action="@{/applications}" method="get">
         <label class="compact-label">
-            Sort
+            Сортування
             <select name="sortBy" onchange="this.form.submit()">
-                <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Newest first</option>
-                <option value="status" th:selected="${sortBy == 'status'}">Status</option>
-                <option value="company" th:selected="${sortBy == 'company'}">Company</option>
+                <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Спочатку нові</option>
+                <option value="status" th:selected="${sortBy == 'status'}">За статусом</option>
+                <option value="company" th:selected="${sortBy == 'company'}">За компанією</option>
             </select>
         </label>
     </form>
@@ -44,7 +43,7 @@
     <section class="kanban-board">
         <article class="kanban-column" th:each="status : ${statuses}" th:classappend="${#strings.toLowerCase(status.name())}">
             <div class="kanban-header">
-                <h2 th:text="${#strings.capitalize(#strings.toLowerCase(status.name()))}">Saved</h2>
+                <h2 th:text="${statusLabels.get(status)}">Збережено</h2>
                 <span th:text="${applicationsByStatus.get(status).size()}">0</span>
             </div>
 
@@ -53,21 +52,29 @@
                     <a th:href="@{/applications/{id}(id=${jobApplication.id})}">
                         <strong th:text="${jobApplication.title}">Java Developer</strong>
                     </a>
-                    <span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priority}">MEDIUM</span>
+                    <span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priorityLabel}">Середній</span>
                 </div>
                 <a class="kanban-meta" th:href="@{/applications/{id}(id=${jobApplication.id})}">
-                    <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</span>
+                    <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Компанія · Hamburg</span>
                 </a>
-                <div class="chip-row">
-                    <span class="chip" th:if="${jobApplication.salary != null && !#strings.isEmpty(jobApplication.salary)}" th:text="${jobApplication.salary}">Salary</span>
-                    <span class="chip" th:if="${jobApplication.jobType != null && !#strings.isEmpty(jobApplication.jobType)}" th:text="${jobApplication.jobType}">Type</span>
+                <div class="kanban-card-meta-row">
+                    <span th:text="${jobApplication.notes.size() + ' нотаток'}">0 нотаток</span>
+                    <span th:text="${'Оновлено ' + #temporals.format(jobApplication.updatedAt, 'dd.MM HH:mm')}">Оновлено 01.06 12:00</span>
                 </div>
+                <div class="chip-row">
+                    <span class="chip" th:if="${jobApplication.salary != null && !#strings.isEmpty(jobApplication.salary)}" th:text="${jobApplication.salary}">Зарплата</span>
+                    <span class="chip" th:if="${jobApplication.jobType != null && !#strings.isEmpty(jobApplication.jobType)}" th:text="${jobApplication.jobType}">Тип</span>
+                </div>
+                <form class="quick-status-form" th:action="@{/applications/{id}/status(id=${jobApplication.id})}" method="post">
+                    <select class="compact-select" name="status" aria-label="Статус" onchange="this.form.submit()">
+                        <option th:each="nextStatus : ${statuses}" th:value="${nextStatus}" th:selected="${nextStatus == jobApplication.status}" th:text="${statusLabels.get(nextStatus)}">Збережено</option>
+                    </select>
+                </form>
                 <div class="card-actions">
-                    <a class="button secondary" th:href="@{/applications/{id}(id=${jobApplication.id})}">View</a>
-                    <a class="button ghost" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Edit</a>
+                    <a class="button secondary" th:href="@{/applications/{id}(id=${jobApplication.id})}">Переглянути</a>
+                    <a class="button ghost" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Редагувати</a>
                     <form th:action="@{/applications/{id}/delete(id=${jobApplication.id})}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                        <button class="button danger" type="submit">Delete</button>
+                        <button class="button danger" type="submit">Видалити</button>
                     </form>
                 </div>
             </div>

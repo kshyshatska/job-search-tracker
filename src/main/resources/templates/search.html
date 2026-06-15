@@ -1,95 +1,98 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Jobs | Job Search Tracker</title>
+    <title>Пошук вакансій | Job Search Tracker</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <nav class="app-navbar">
     <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
     <div class="navbar-links">
-        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
-        <a class="nav-link active" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
-        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
+        <a class="nav-link active" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
+        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
     </div>
     <form th:action="@{/logout}" method="post" class="logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
     </form>
 </nav>
 
     <main class="content">
         <div class="page-header">
             <div>
-                <h1>Search Jobs</h1>
+                <h1>Пошук вакансій</h1>
             </div>
         </div>
 
+        <p class="alert success" th:if="${message}" th:text="${message}">Вакансію збережено.</p>
+
         <form class="search-form expanded panel" th:action="@{/jobs/search}" th:object="${searchRequest}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <label>
-                Keyword
+                Ключові слова
                 <input type="text" th:field="*{keyword}" placeholder="Java Developer">
             </label>
             <label>
-                Location
+                Локація
                 <input type="text" th:field="*{location}" placeholder="Hamburg">
             </label>
             <label>
-                Work mode
+                Формат
                 <select th:field="*{workMode}">
-                    <option value="">Any</option>
-                    <option value="remote">Remote</option>
-                    <option value="onsite">Onsite</option>
-                    <option value="hybrid">Hybrid</option>
+                    <option value="">Будь-який</option>
+                    <option value="remote">Віддалено</option>
+                    <option value="onsite">Офіс</option>
+                    <option value="hybrid">Гібрид</option>
                 </select>
             </label>
             <label>
-                Level
+                Рівень
                 <select th:field="*{level}">
-                    <option value="">Any</option>
-                    <option value="internship">Internship</option>
+                    <option value="">Будь-який</option>
+                    <option value="internship">Стажування</option>
                     <option value="junior">Junior</option>
                     <option value="middle">Middle</option>
                 </select>
             </label>
             <label>
-                Job type
+                Тип
                 <select th:field="*{jobType}">
-                    <option value="">Any</option>
-                    <option value="Full-time">Full-time</option>
-                    <option value="Part-time">Part-time</option>
-                    <option value="Internship">Internship</option>
+                    <option value="">Будь-який</option>
+                    <option value="Full-time">Повна зайнятість</option>
+                    <option value="Part-time">Часткова зайнятість</option>
+                    <option value="Internship">Стажування</option>
                 </select>
             </label>
             <label>
-                Date posted
+                Опубліковано
                 <select th:field="*{datePosted}">
-                    <option value="">Any time</option>
-                    <option value="last 24 hours">Last 24 hours</option>
-                    <option value="last 7 days">Last 7 days</option>
-                    <option value="last 30 days">Last 30 days</option>
+                    <option value="">Будь-коли</option>
+                    <option value="last 24 hours">24 години</option>
+                    <option value="last 7 days">7 днів</option>
+                    <option value="last 30 days">30 днів</option>
                 </select>
             </label>
-            <button class="button primary" type="submit">Search</button>
+            <button class="button primary" type="submit">Шукати</button>
         </form>
+
+        <div class="results-summary" th:if="${!#lists.isEmpty(results)}">
+            <span th:text="${results.size() + ' вакансій'}">0 вакансій</span>
+        </div>
 
         <section class="cards-list">
             <article class="job-card" th:each="job : ${results}">
                 <div class="card-main">
                     <h2 th:text="${job.title}">Java Developer</h2>
-                    <p class="meta" th:text="${job.company + ' · ' + job.location}">Company · Hamburg</p>
+                    <p class="meta" th:text="${job.company + ' · ' + job.location}">Компанія · Hamburg</p>
                     <div class="chip-row">
-                        <span class="chip" th:if="${job.salary != null && !#strings.isEmpty(job.salary)}" th:text="${job.salary}">Salary</span>
-                        <span class="chip" th:if="${job.jobType != null && !#strings.isEmpty(job.jobType)}" th:text="${job.jobType}">Type</span>
+                        <span class="chip" th:if="${job.salary != null && !#strings.isEmpty(job.salary)}" th:text="${job.salary}">Зарплата</span>
+                        <span class="chip" th:if="${job.jobType != null && !#strings.isEmpty(job.jobType)}" th:text="${job.jobType}">Тип</span>
                     </div>
-                    <p class="description" th:text="${job.description}">Short job description.</p>
-                    <a class="text-link" th:href="${job.sourceUrl}" target="_blank" rel="noopener">Original vacancy</a>
+                    <p class="description" th:text="${job.description}">Опис вакансії.</p>
+                    <a class="text-link" th:href="${job.sourceUrl}" target="_blank" rel="noopener">Відкрити вакансію</a>
                 </div>
-                <form th:action="@{/jobs/save}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <form th:if="${!savedSourceUrls.contains(job.sourceUrl)}" th:action="@{/jobs/save}" method="post">
                     <input type="hidden" name="title" th:value="${job.title}">
                     <input type="hidden" name="company" th:value="${job.company}">
                     <input type="hidden" name="location" th:value="${job.location}">
@@ -97,8 +100,9 @@
                     <input type="hidden" name="sourceUrl" th:value="${job.sourceUrl}">
                     <input type="hidden" name="salary" th:value="${job.salary}">
                     <input type="hidden" name="jobType" th:value="${job.jobType}">
-                    <button class="button secondary" type="submit">Save to tracker</button>
+                    <button class="button secondary" type="submit">Зберегти</button>
                 </form>
+                <button th:if="${savedSourceUrls.contains(job.sourceUrl)}" class="button disabled-button" type="button" disabled>У трекері</button>
             </article>
 
             <div class="empty-state" th:if="${#lists.isEmpty(results)}">

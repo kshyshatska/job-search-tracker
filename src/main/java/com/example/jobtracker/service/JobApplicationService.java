@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -39,13 +42,20 @@ public class JobApplicationService {
 
     public JobApplicationDto saveFromSearchResult(JobSearchResultDto result) {
         User user = currentUserService.getCurrentUser();
+        String sourceUrl = defaultText(result.getSourceUrl(), "");
+        if (hasText(sourceUrl)) {
+            Optional<JobApplication> existingApplication = jobApplicationRepository.findByUserAndSourceUrl(user, sourceUrl);
+            if (existingApplication.isPresent()) {
+                return toDto(existingApplication.get());
+            }
+        }
 
         JobApplication application = new JobApplication();
-        application.setTitle(defaultText(result.getTitle(), "Untitled vacancy"));
-        application.setCompany(defaultText(result.getCompany(), "Unknown company"));
-        application.setLocation(defaultText(result.getLocation(), "Remote or not specified"));
+        application.setTitle(defaultText(result.getTitle(), "Вакансія без назви"));
+        application.setCompany(defaultText(result.getCompany(), "Невідома компанія"));
+        application.setLocation(defaultText(result.getLocation(), "Віддалено або не вказано"));
         application.setDescription(result.getDescription());
-        application.setSourceUrl(result.getSourceUrl());
+        application.setSourceUrl(sourceUrl);
         application.setSalary(result.getSalary());
         application.setJobType(result.getJobType());
         application.setStatus(ApplicationStatus.SAVED);
@@ -53,6 +63,20 @@ public class JobApplicationService {
         application.setUser(user);
 
         return toDto(jobApplicationRepository.save(application));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isSavedSourceUrl(String sourceUrl) {
+        if (!hasText(sourceUrl)) {
+            return false;
+        }
+        return jobApplicationRepository.findByUserAndSourceUrl(currentUserService.getCurrentUser(), sourceUrl.trim())
+                .isPresent();
+    }
+
+    @Transactional(readOnly = true)
+    public Set<String> savedSourceUrlsForCurrentUser() {
+        return new HashSet<>(jobApplicationRepository.findSourceUrlsByUser(currentUserService.getCurrentUser()));
     }
 
     @Transactional(readOnly = true)
@@ -106,6 +130,12 @@ public class JobApplicationService {
         return toDto(jobApplicationRepository.save(application));
     }
 
+    public JobApplicationDto updateStatus(Long id, ApplicationStatus status) {
+        JobApplication application = findEntityForCurrentUser(id);
+        application.setStatus(status);
+        return toDto(jobApplicationRepository.save(application));
+    }
+
     public void deleteApplication(Long id) {
         jobApplicationRepository.delete(findEntityForCurrentUser(id));
     }
@@ -113,7 +143,7 @@ public class JobApplicationService {
     public void deleteNote(Long applicationId, Long noteId) {
         JobApplication application = findEntityForCurrentUser(applicationId);
         ApplicationNote note = applicationNoteRepository.findByIdAndApplication(noteId, application)
-                .orElseThrow(() -> new IllegalArgumentException("Note not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Нотатку не знайдено"));
         application.getNotes().remove(note);
         applicationNoteRepository.delete(note);
     }
@@ -149,7 +179,7 @@ public class JobApplicationService {
 
     private JobApplication findEntityForCurrentUser(Long id) {
         return jobApplicationRepository.findByIdAndUser(id, currentUserService.getCurrentUser())
-                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Заявку не знайдено"));
     }
 
     public JobApplicationDto toDto(JobApplication application) {

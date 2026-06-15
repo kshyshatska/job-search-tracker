@@ -1,95 +1,93 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Details | Job Search Tracker</title>
+    <title>Деталі заявки | Job Search Tracker</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <nav class="app-navbar">
     <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
     <div class="navbar-links">
-        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
-        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
-        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
+        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
+        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
     </div>
     <form th:action="@{/logout}" method="post" class="logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
     </form>
 </nav>
 
-    <main class="content">
-        <div class="page-header">
-            <div>
-                <h1 th:text="${jobApplication.title}">Java Developer</h1>
-                <p class="meta" th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</p>
-            </div>
-            <div class="header-actions">
-                <a class="button ghost" th:href="@{/applications}">Back</a>
-                <a class="button primary" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Edit</a>
-            </div>
+<main class="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${jobApplication.title}">Java Developer</h1>
+            <p class="meta" th:text="${jobApplication.company + ' · ' + jobApplication.location}">Компанія · Hamburg</p>
         </div>
+        <div class="header-actions">
+            <a class="button ghost" th:href="@{/applications}">Назад</a>
+            <a class="button primary" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Редагувати</a>
+        </div>
+    </div>
 
-        <p class="alert success" th:if="${message}" th:text="${message}">Updated.</p>
+    <p class="alert success" th:if="${message}" th:text="${message}">Оновлено.</p>
 
-        <section>
-            <article class="panel details-panel">
-                <dl class="details-list">
-                    <div>
-                        <dt>Original link</dt>
-                        <dd><a class="text-link" th:href="${jobApplication.sourceUrl}" target="_blank" rel="noopener">Open vacancy</a></dd>
-                    </div>
-                    <div>
-                        <dt>Status</dt>
-                        <dd><span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.status}">SAVED</span></dd>
-                    </div>
-                    <div>
-                        <dt>Priority</dt>
-                        <dd><span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priority}">MEDIUM</span></dd>
-                    </div>
-                    <div>
-                        <dt>Salary</dt>
-                        <dd th:text="${jobApplication.salary ?: '—'}">—</dd>
-                    </div>
-                    <div>
-                        <dt>Job type</dt>
-                        <dd th:text="${jobApplication.jobType ?: '—'}">—</dd>
-                    </div>
-                    <div>
-                        <dt>Created</dt>
-                        <dd th:text="${#temporals.format(jobApplication.createdAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</dd>
-                    </div>
-                    <div>
-                        <dt>Last update</dt>
-                        <dd th:text="${#temporals.format(jobApplication.updatedAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</dd>
-                    </div>
-                </dl>
-                <p class="description long" th:text="${jobApplication.description}">Description</p>
-            </article>
-        </section>
+    <section>
+        <article class="panel details-panel">
+            <dl class="details-list">
+                <div>
+                    <dt>Оригінальна вакансія</dt>
+                    <dd><a class="text-link" th:href="${jobApplication.sourceUrl}" target="_blank" rel="noopener">Відкрити вакансію</a></dd>
+                </div>
+                <div>
+                    <dt>Статус</dt>
+                    <dd><span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span></dd>
+                </div>
+                <div>
+                    <dt>Пріоритет</dt>
+                    <dd><span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priorityLabel}">Середній</span></dd>
+                </div>
+                <div>
+                    <dt>Зарплата</dt>
+                    <dd th:text="${jobApplication.salary ?: '—'}">—</dd>
+                </div>
+                <div>
+                    <dt>Тип зайнятості</dt>
+                    <dd th:text="${jobApplication.jobType ?: '—'}">—</dd>
+                </div>
+                <div>
+                    <dt>Створено</dt>
+                    <dd th:text="${#temporals.format(jobApplication.createdAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</dd>
+                </div>
+                <div>
+                    <dt>Оновлено</dt>
+                    <dd th:text="${#temporals.format(jobApplication.updatedAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</dd>
+                </div>
+            </dl>
+            <p class="description long" th:text="${jobApplication.description}">Опис</p>
+        </article>
+    </section>
 
-        <section class="panel">
-            <div class="panel-header">
-                <h2>Notes</h2>
-                <span class="muted" th:text="${jobApplication.notes.size() + ' total'}">0 total</span>
-            </div>
-            <div class="empty-state" th:if="${#lists.isEmpty(jobApplication.notes)}"></div>
-            <div class="timeline">
-                <div class="note" th:each="note : ${jobApplication.notes}">
-                    <p th:text="${note.text}">Note text</p>
-                    <div class="note-footer">
-                        <time th:text="${#temporals.format(note.createdAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</time>
-                        <form th:action="@{/applications/{applicationId}/notes/{noteId}/delete(applicationId=${jobApplication.id},noteId=${note.id})}" method="post">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <button class="link-button danger-text" type="submit">Delete note</button>
-                        </form>
-                    </div>
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Нотатки</h2>
+            <span class="muted" th:text="${jobApplication.notes.size() + ' усього'}">0 усього</span>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(jobApplication.notes)}"></div>
+        <div class="timeline">
+            <div class="note" th:each="note : ${jobApplication.notes}">
+                <p th:text="${note.text}">Текст нотатки</p>
+                <div class="note-footer">
+                    <time th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</time>
+                    <form th:action="@{/applications/{applicationId}/notes/{noteId}/delete(applicationId=${jobApplication.id},noteId=${note.id})}" method="post">
+                        <button class="link-button danger-text" type="submit">Видалити нотатку</button>
+                    </form>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+</main>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
 </body>
