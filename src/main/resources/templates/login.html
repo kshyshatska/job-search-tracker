@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Job Search Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="login-body">
+<main class="login-shell">
+    <section class="login-panel">
+        <div class="auth-header">
+            <span class="brand-mark"><i data-lucide="briefcase-business"></i></span>
+            <h1>Job Search Tracker</h1>
+        </div>
+
+        <form class="form-stack" th:action="@{/login}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <label>
+                Email or username
+                <input type="text" name="username" placeholder="student@example.com" required autofocus>
+            </label>
+
+            <label>
+                Password
+                <input type="password" name="password" placeholder="password123" required>
+            </label>
+
+            <button class="button primary" type="submit">Log in</button>
+
+            <p class="alert error" th:if="${param.error}">Invalid username or password.</p>
+            <p class="alert success" th:if="${param.logout}">You have been logged out.</p>
+            <p class="alert success" th:if="${message}" th:text="${message}">Account created.</p>
+            <p class="auth-switch"><a class="text-link" th:href="@{/register}">Create account</a></p>
+        </form>
+    </section>
+</main>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>

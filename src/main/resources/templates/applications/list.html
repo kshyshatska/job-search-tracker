@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications | Job Search Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="app-navbar">
+    <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
+    <div class="navbar-links">
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
+        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+    </div>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+    </form>
+</nav>
+
+<main class="content wide-content">
+    <div class="page-header">
+        <div>
+            <h1>My Applications</h1>
+        </div>
+        <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="plus"></i>Add</a>
+    </div>
+
+    <p class="alert success" th:if="${message}" th:text="${message}">Saved.</p>
+
+    <form class="sort-bar" th:action="@{/applications}" method="get">
+        <label class="compact-label">
+            Sort
+            <select name="sortBy" onchange="this.form.submit()">
+                <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Newest first</option>
+                <option value="status" th:selected="${sortBy == 'status'}">Status</option>
+                <option value="company" th:selected="${sortBy == 'company'}">Company</option>
+            </select>
+        </label>
+    </form>
+
+    <section class="kanban-board">
+        <article class="kanban-column" th:each="status : ${statuses}" th:classappend="${#strings.toLowerCase(status.name())}">
+            <div class="kanban-header">
+                <h2 th:text="${#strings.capitalize(#strings.toLowerCase(status.name()))}">Saved</h2>
+                <span th:text="${applicationsByStatus.get(status).size()}">0</span>
+            </div>
+
+            <div class="kanban-card" th:each="jobApplication : ${applicationsByStatus.get(status)}">
+                <div class="kanban-card-header">
+                    <a th:href="@{/applications/{id}(id=${jobApplication.id})}">
+                        <strong th:text="${jobApplication.title}">Java Developer</strong>
+                    </a>
+                    <span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priority}">MEDIUM</span>
+                </div>
+                <a class="kanban-meta" th:href="@{/applications/{id}(id=${jobApplication.id})}">
+                    <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</span>
+                </a>
+                <div class="chip-row">
+                    <span class="chip" th:if="${jobApplication.salary != null && !#strings.isEmpty(jobApplication.salary)}" th:text="${jobApplication.salary}">Salary</span>
+                    <span class="chip" th:if="${jobApplication.jobType != null && !#strings.isEmpty(jobApplication.jobType)}" th:text="${jobApplication.jobType}">Type</span>
+                </div>
+                <div class="card-actions">
+                    <a class="button secondary" th:href="@{/applications/{id}(id=${jobApplication.id})}">View</a>
+                    <a class="button ghost" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Edit</a>
+                    <form th:action="@{/applications/{id}/delete(id=${jobApplication.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button class="button danger" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="empty-state compact" th:if="${#lists.isEmpty(applicationsByStatus.get(status))}">
+            </div>
+        </article>
+    </section>
+</main>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>

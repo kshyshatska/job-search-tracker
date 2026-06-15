@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Jobs | Job Search Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="app-navbar">
+    <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
+    <div class="navbar-links">
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+        <a class="nav-link active" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
+        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+    </div>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+    </form>
+</nav>
+
+    <main class="content">
+        <div class="page-header">
+            <div>
+                <h1>Search Jobs</h1>
+            </div>
+        </div>
+
+        <form class="search-form expanded panel" th:action="@{/jobs/search}" th:object="${searchRequest}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <label>
+                Keyword
+                <input type="text" th:field="*{keyword}" placeholder="Java Developer">
+            </label>
+            <label>
+                Location
+                <input type="text" th:field="*{location}" placeholder="Hamburg">
+            </label>
+            <label>
+                Work mode
+                <select th:field="*{workMode}">
+                    <option value="">Any</option>
+                    <option value="remote">Remote</option>
+                    <option value="onsite">Onsite</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
+            </label>
+            <label>
+                Level
+                <select th:field="*{level}">
+                    <option value="">Any</option>
+                    <option value="internship">Internship</option>
+                    <option value="junior">Junior</option>
+                    <option value="middle">Middle</option>
+                </select>
+            </label>
+            <label>
+                Job type
+                <select th:field="*{jobType}">
+                    <option value="">Any</option>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Internship">Internship</option>
+                </select>
+            </label>
+            <label>
+                Date posted
+                <select th:field="*{datePosted}">
+                    <option value="">Any time</option>
+                    <option value="last 24 hours">Last 24 hours</option>
+                    <option value="last 7 days">Last 7 days</option>
+                    <option value="last 30 days">Last 30 days</option>
+                </select>
+            </label>
+            <button class="button primary" type="submit">Search</button>
+        </form>
+
+        <section class="cards-list">
+            <article class="job-card" th:each="job : ${results}">
+                <div class="card-main">
+                    <h2 th:text="${job.title}">Java Developer</h2>
+                    <p class="meta" th:text="${job.company + ' · ' + job.location}">Company · Hamburg</p>
+                    <div class="chip-row">
+                        <span class="chip" th:if="${job.salary != null && !#strings.isEmpty(job.salary)}" th:text="${job.salary}">Salary</span>
+                        <span class="chip" th:if="${job.jobType != null && !#strings.isEmpty(job.jobType)}" th:text="${job.jobType}">Type</span>
+                    </div>
+                    <p class="description" th:text="${job.description}">Short job description.</p>
+                    <a class="text-link" th:href="${job.sourceUrl}" target="_blank" rel="noopener">Original vacancy</a>
+                </div>
+                <form th:action="@{/jobs/save}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="title" th:value="${job.title}">
+                    <input type="hidden" name="company" th:value="${job.company}">
+                    <input type="hidden" name="location" th:value="${job.location}">
+                    <input type="hidden" name="description" th:value="${job.description}">
+                    <input type="hidden" name="sourceUrl" th:value="${job.sourceUrl}">
+                    <input type="hidden" name="salary" th:value="${job.salary}">
+                    <input type="hidden" name="jobType" th:value="${job.jobType}">
+                    <button class="button secondary" type="submit">Save to tracker</button>
+                </form>
+            </article>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(results)}">
+            </div>
+        </section>
+    </main>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>

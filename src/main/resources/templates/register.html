@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Job Search Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="login-body">
+<main class="login-shell">
+    <section class="login-panel">
+        <div class="auth-header">
+            <span class="brand-mark"><i data-lucide="user-plus"></i></span>
+            <h1>Create account</h1>
+        </div>
+
+        <form class="form-stack" th:action="@{/register}" th:object="${registration}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <label>
+                Email or username
+                <input type="text" th:field="*{username}" placeholder="student@example.com" required autofocus>
+            </label>
+
+            <label>
+                Password
+                <input type="password" th:field="*{password}" placeholder="Choose a password" required>
+            </label>
+
+            <button class="button primary" type="submit">Create account</button>
+
+            <p class="alert error" th:if="${error}" th:text="${error}">Registration error.</p>
+            <p class="auth-switch"><a class="text-link" th:href="@{/login}">Log in</a></p>
+        </form>
+    </section>
+</main>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>

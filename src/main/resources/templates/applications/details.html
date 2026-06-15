@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Details | Job Search Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="app-navbar">
+    <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
+    <div class="navbar-links">
+        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Search Jobs</a>
+        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>My Applications</a>
+    </div>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Logout</button>
+    </form>
+</nav>
+
+    <main class="content">
+        <div class="page-header">
+            <div>
+                <h1 th:text="${jobApplication.title}">Java Developer</h1>
+                <p class="meta" th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</p>
+            </div>
+            <div class="header-actions">
+                <a class="button ghost" th:href="@{/applications}">Back</a>
+                <a class="button primary" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Edit</a>
+            </div>
+        </div>
+
+        <p class="alert success" th:if="${message}" th:text="${message}">Updated.</p>
+
+        <section>
+            <article class="panel details-panel">
+                <dl class="details-list">
+                    <div>
+                        <dt>Original link</dt>
+                        <dd><a class="text-link" th:href="${jobApplication.sourceUrl}" target="_blank" rel="noopener">Open vacancy</a></dd>
+                    </div>
+                    <div>
+                        <dt>Status</dt>
+                        <dd><span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.status}">SAVED</span></dd>
+                    </div>
+                    <div>
+                        <dt>Priority</dt>
+                        <dd><span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priority}">MEDIUM</span></dd>
+                    </div>
+                    <div>
+                        <dt>Salary</dt>
+                        <dd th:text="${jobApplication.salary ?: '—'}">—</dd>
+                    </div>
+                    <div>
+                        <dt>Job type</dt>
+                        <dd th:text="${jobApplication.jobType ?: '—'}">—</dd>
+                    </div>
+                    <div>
+                        <dt>Created</dt>
+                        <dd th:text="${#temporals.format(jobApplication.createdAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</dd>
+                    </div>
+                    <div>
+                        <dt>Last update</dt>
+                        <dd th:text="${#temporals.format(jobApplication.updatedAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</dd>
+                    </div>
+                </dl>
+                <p class="description long" th:text="${jobApplication.description}">Description</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Notes</h2>
+                <span class="muted" th:text="${jobApplication.notes.size() + ' total'}">0 total</span>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(jobApplication.notes)}"></div>
+            <div class="timeline">
+                <div class="note" th:each="note : ${jobApplication.notes}">
+                    <p th:text="${note.text}">Note text</p>
+                    <div class="note-footer">
+                        <time th:text="${#temporals.format(note.createdAt, 'dd MMM yyyy HH:mm')}">01 Jun 2026</time>
+                        <form th:action="@{/applications/{applicationId}/notes/{noteId}/delete(applicationId=${jobApplication.id},noteId=${note.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="link-button danger-text" type="submit">Delete note</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>
