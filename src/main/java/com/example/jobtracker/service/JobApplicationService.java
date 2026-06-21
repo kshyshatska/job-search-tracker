@@ -67,6 +67,11 @@ public class JobApplicationService {
 
     @Transactional(readOnly = true)
     public boolean isSavedSourceUrl(String sourceUrl) {
+        return existsForCurrentUserBySourceUrl(sourceUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsForCurrentUserBySourceUrl(String sourceUrl) {
         if (!hasText(sourceUrl)) {
             return false;
         }
@@ -131,13 +136,36 @@ public class JobApplicationService {
     }
 
     public JobApplicationDto updateStatus(Long id, ApplicationStatus status) {
+        return updateStatusForCurrentUser(id, status);
+    }
+
+    public JobApplicationDto updateStatusForCurrentUser(Long id, ApplicationStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Статус не вказано");
+        }
         JobApplication application = findEntityForCurrentUser(id);
         application.setStatus(status);
         return toDto(jobApplicationRepository.save(application));
     }
 
     public void deleteApplication(Long id) {
+        deleteForCurrentUser(id);
+    }
+
+    public void deleteForCurrentUser(Long id) {
         jobApplicationRepository.delete(findEntityForCurrentUser(id));
+    }
+
+    public JobApplicationDto addNoteForCurrentUser(Long id, String text) {
+        if (!hasText(text)) {
+            throw new IllegalArgumentException("Нотатка не може бути порожньою");
+        }
+        JobApplication application = findEntityForCurrentUser(id);
+        ApplicationNote note = new ApplicationNote();
+        note.setText(text.trim());
+        note.setApplication(application);
+        application.getNotes().add(note);
+        return toDto(jobApplicationRepository.save(application));
     }
 
     public void deleteNote(Long applicationId, Long noteId) {

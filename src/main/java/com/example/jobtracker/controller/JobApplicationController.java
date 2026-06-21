@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -27,9 +29,12 @@ public class JobApplicationController {
     @GetMapping("/applications")
     public String applications(
             @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "false") boolean showArchived,
             Model model) {
-        model.addAttribute("statuses", ApplicationStatus.values());
+        model.addAttribute("visibleStatuses", visibleStatuses(showArchived));
+        model.addAttribute("allStatuses", ApplicationStatus.values());
         model.addAttribute("sortBy", sortBy);
+        model.addAttribute("showArchived", showArchived);
         model.addAttribute("applicationsByStatus", jobApplicationService.groupedByStatusForCurrentUser(sortBy));
         model.addAttribute("statusLabels", statusLabels());
         return "applications/list";
@@ -67,9 +72,19 @@ public class JobApplicationController {
             @PathVariable Long id,
             @RequestParam ApplicationStatus status,
             RedirectAttributes redirectAttributes) {
-        jobApplicationService.updateStatus(id, status);
+        jobApplicationService.updateStatusForCurrentUser(id, status);
         redirectAttributes.addFlashAttribute("message", "Статус оновлено.");
         return "redirect:/applications";
+    }
+
+    @PostMapping("/applications/{id}/notes")
+    public String addNote(
+            @PathVariable Long id,
+            @RequestParam String text,
+            RedirectAttributes redirectAttributes) {
+        jobApplicationService.addNoteForCurrentUser(id, text);
+        redirectAttributes.addFlashAttribute("message", "Нотатку додано.");
+        return "redirect:/applications/" + id;
     }
 
     @PostMapping("/applications/{applicationId}/notes/{noteId}/delete")
@@ -105,5 +120,11 @@ public class JobApplicationController {
                 ApplicationPriority.MEDIUM, "Середній",
                 ApplicationPriority.HIGH, "Високий"
         );
+    }
+
+    private List<ApplicationStatus> visibleStatuses(boolean showArchived) {
+        return Arrays.stream(ApplicationStatus.values())
+                .filter(status -> showArchived || status != ApplicationStatus.REJECTED)
+                .toList();
     }
 }

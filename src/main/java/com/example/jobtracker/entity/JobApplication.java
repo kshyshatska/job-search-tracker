@@ -15,12 +15,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(
+        name = "job_application",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_job_application_user_source",
+                columnNames = {"user_id", "source_url"}
+        )
+)
 public class JobApplication {
 
     @Id

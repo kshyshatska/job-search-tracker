@@ -3,79 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд | Job Search Tracker</title>
+    <title>Головна | JobPath</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-<nav class="app-navbar">
-    <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
-    <div class="navbar-links">
-        <a class="nav-link active" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
-        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
-        <a class="nav-link" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
-    </div>
-    <form th:action="@{/logout}" method="post" class="logout-form">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
-    </form>
-</nav>
+<nav th:replace="~{fragments/navbar :: navbar('dashboard')}"></nav>
 
-    <main class="content">
-        <div class="page-header">
-            <div>
-                <h1>Дашборд</h1>
-            </div>
-            <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
+<main class="content">
+    <div class="page-header">
+        <div>
+            <h1>Головна</h1>
         </div>
+        <a class="button primary" th:href="@{/jobs/search}"><i data-lucide="search"></i>Знайти вакансії</a>
+    </div>
 
-        <section class="metrics-grid">
-            <article class="metric-card total-card">
-                <span>Усього</span>
-                <strong th:text="${totalApplications}">0</strong>
-            </article>
-            <article class="metric-card" th:each="entry : ${statusCounts}" th:classappend="${#strings.toLowerCase(entry.key.name())}">
-                <span th:text="${statusLabels.get(entry.key)}">Збережено</span>
-                <strong th:text="${entry.value}">0</strong>
-            </article>
-        </section>
+    <section class="dashboard-grid" th:if="${totalApplications == 0}">
+        <article class="panel panel-dark">
+            <h2>Почніть із пошуку вакансій</h2>
+            <a class="button secondary" th:href="@{/jobs/search}">Перейти до вакансій</a>
+        </article>
+    </section>
 
-        <section class="progress-panel panel dashboard-band">
-            <h2>Потребують дії</h2>
-            <div class="progress-number">
-                <strong th:text="${actionNeeded}">0</strong>
+    <section class="metrics-grid">
+        <article class="metric-card">
+            <span class="metric-icon"><i data-lucide="bookmark"></i></span>
+            <strong th:text="${totalApplications}">0</strong>
+            <span>Усього у трекері</span>
+        </article>
+        <article class="metric-card" th:each="entry : ${statusCounts}">
+            <span class="metric-icon"><i data-lucide="activity"></i></span>
+            <strong th:text="${entry.value}">0</strong>
+            <span th:text="${statusLabels.get(entry.key)}">Збережено</span>
+        </article>
+    </section>
+
+    <section class="dashboard-stack">
+        <article class="panel panel-blue">
+            <div class="panel-header">
+                <h2>Активні заявки</h2>
+                <strong class="stat-value" style="color:#fff" th:text="${actionNeeded}">0</strong>
             </div>
-        </section>
+        </article>
 
-        <section class="status-strip panel">
-            <div class="status-step" th:each="entry : ${statusCounts}" th:classappend="${#strings.toLowerCase(entry.key.name())}">
-                <span th:text="${statusLabels.get(entry.key)}">Збережено</span>
-                <strong th:text="${entry.value}">0</strong>
+        <article class="panel">
+            <div class="panel-header">
+                <h2>Останні заявки</h2>
+                <a class="text-link" th:href="@{/applications}">Всі</a>
             </div>
-        </section>
-
-        <section class="two-column">
-            <article class="panel">
-                <div class="panel-header">
-                    <h2>Нещодавні</h2>
-                </div>
-                <div class="empty-state" th:if="${#lists.isEmpty(recentApplications)}"></div>
-                <a class="list-row" th:each="jobApplication : ${recentApplications}" th:href="@{/applications/{id}(id=${jobApplication.id})}">
+            <div class="empty-state compact-empty" th:if="${#lists.isEmpty(recentApplications)}">Заявок поки немає</div>
+            <a class="list-row" th:each="jobApplication : ${recentApplications}" th:href="@{/applications/{id}(id=${jobApplication.id})}">
+                <div class="job-title-row">
+                    <span class="company-logo" th:text="${#strings.isEmpty(jobApplication.company) ? 'J' : #strings.substring(jobApplication.company, 0, 1)}">J</span>
                     <div>
                         <strong th:text="${jobApplication.title}">Java Developer</strong>
                         <span th:text="${jobApplication.company + ' · ' + jobApplication.location}">Компанія · Hamburg</span>
                     </div>
-                    <span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span>
-                </a>
-            </article>
-
-            <article class="panel">
-                <div class="panel-header">
-                    <h2>Дошка</h2>
                 </div>
-                <a class="button secondary" th:href="@{/applications}"><i data-lucide="columns-3"></i>Відкрити</a>
-            </article>
-        </section>
-    </main>
+                <span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span>
+            </a>
+        </article>
+    </section>
+</main>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

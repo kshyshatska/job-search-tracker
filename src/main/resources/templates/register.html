@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація | Job Search Tracker</title>
+    <title>Реєстрація | JobPath</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="login-body">
 <main class="login-shell">
     <section class="login-panel">
         <div class="auth-header">
-            <span class="brand-mark"><i data-lucide="user-plus"></i></span>
+            <span class="brand-mark">JP</span>
             <h1>Створити акаунт</h1>
+            <p class="meta">Особистий трекер вакансій, заявок і нотаток.</p>
         </div>
 
-        <form class="form-stack" th:action="@{/register}" th:object="${registration}" method="post">
+        <form class="form-stack" th:action="@{/register}" th:object="${registration}" method="post" data-loading-form>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <label>
                 Email або логін
                 <input type="text" th:field="*{username}" placeholder="student@example.com" required autofocus>
@@ -25,14 +27,13 @@
                 <input type="password" th:field="*{password}" placeholder="Введіть пароль" required>
             </label>
 
-            <button class="button primary" type="submit">Створити</button>
+            <button class="button primary" type="submit" data-loading-label="Створюємо...">Створити</button>
 
             <p class="alert error" th:if="${error}" th:text="${error}">Помилка реєстрації.</p>
             <p class="auth-switch"><a class="text-link" th:href="@{/login}">Увійти</a></p>
         </form>
     </section>
 </main>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>if (window.lucide) lucide.createIcons();</script>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

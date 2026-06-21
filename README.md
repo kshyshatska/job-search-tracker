@@ -10,12 +10,14 @@ Simple Spring Boot 3 web application for tracking personal job applications.
 - Spring Data JPA
 - Spring Security
 - Thymeleaf
-- H2 database by default, PostgreSQL dependency included
+- File-based H2 database by default, PostgreSQL dependency included
+- Flyway migrations
 - Maven
 
 ## Run locally
 
 ```bash
+export JOOBLE_API_KEY=your_jooble_api_key
 mvn spring-boot:run
 ```
 
@@ -28,14 +30,14 @@ Default login:
 
 ## External job API
 
-The app integrates with the Jooble API when an API key is available:
+The app integrates with the Jooble API when an API key is available. Copy `.env.example` for local setup if needed:
 
 ```bash
-export JOOBLE_API_KEY=5372d3a6-1d37-4118-8a72-0a34d791e72f
+export JOOBLE_API_KEY=your_jooble_api_key
 mvn spring-boot:run
 ```
 
-Without `JOOBLE_API_KEY`, the search page returns small demo results so the application remains easy to run for lab work.
+Without `JOOBLE_API_KEY`, the search page stays usable but shows a setup message instead of fake vacancies.
 
 ## Main features
 
@@ -50,4 +52,10 @@ Without `JOOBLE_API_KEY`, the search page returns small demo results so the appl
 - View, update, and delete saved applications
 - Add application notes and delete individual notes
 - Track priority, salary, and job type for each application
-- DTO-based REST endpoints at `/api/applications`
+- Drag-and-drop or quick-select Kanban status updates
+- DTO-based REST endpoints:
+  - `GET /api/applications`
+  - `GET /api/applications/{id}`
+  - `PATCH /api/applications/{id}/status`
+  - `POST /api/applications/{id}/notes`
+  - `DELETE /api/applications/{id}`

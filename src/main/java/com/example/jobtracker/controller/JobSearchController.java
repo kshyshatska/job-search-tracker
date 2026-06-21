@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
@@ -25,21 +26,39 @@ public class JobSearchController {
     }
 
     @GetMapping("/jobs/search")
-    public String searchPage(Model model) {
+    public String searchPage(Model model, HttpSession session) {
         if (!model.containsAttribute("searchRequest")) {
-            model.addAttribute("searchRequest", new JobSearchRequestDto());
+            JobSearchRequestDto lastSearchRequest = (JobSearchRequestDto) session.getAttribute("lastSearchRequest");
+            model.addAttribute("searchRequest", lastSearchRequest == null ? new JobSearchRequestDto() : lastSearchRequest);
         }
         if (!model.containsAttribute("results")) {
             model.addAttribute("results", List.of());
         }
         model.addAttribute("savedSourceUrls", jobApplicationService.savedSourceUrlsForCurrentUser());
+        model.addAttribute("joobleConfigured", joobleApiService.isConfigured());
+        model.addAttribute("searchAttempted", false);
         return "search";
     }
 
     @PostMapping("/jobs/search")
-    public String search(@ModelAttribute("searchRequest") JobSearchRequestDto searchRequest, Model model) {
-        model.addAttribute("results", joobleApiService.searchJobs(searchRequest));
+    public String search(
+            @ModelAttribute("searchRequest") JobSearchRequestDto searchRequest,
+            Model model,
+            HttpSession session) {
+        session.setAttribute("lastSearchRequest", searchRequest);
+        List<JobSearchResultDto> results = List.of();
+        try {
+            results = joobleApiService.searchJobs(searchRequest);
+        } catch (IllegalStateException exception) {
+            model.addAttribute("apiMessage", exception.getMessage());
+        }
+        model.addAttribute("results", results);
         model.addAttribute("savedSourceUrls", jobApplicationService.savedSourceUrlsForCurrentUser());
+        model.addAttribute("joobleConfigured", joobleApiService.isConfigured());
+        model.addAttribute("searchAttempted", true);
+        if (!joobleApiService.isConfigured()) {
+            model.addAttribute("apiMessage", "Додайте JOOBLE_API_KEY в environment, щоб завантажувати реальні вакансії з Jooble.");
+        }
         return "search";
     }
 

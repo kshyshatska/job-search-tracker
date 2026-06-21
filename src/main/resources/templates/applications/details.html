@@ -3,29 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Деталі заявки | Job Search Tracker</title>
+    <title>Деталі заявки | JobPath</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-<nav class="app-navbar">
-    <a class="brand" th:href="@{/dashboard}"><i data-lucide="briefcase-business"></i>Job Tracker</a>
-    <div class="navbar-links">
-        <a class="nav-link" th:href="@{/dashboard}"><i data-lucide="layout-dashboard"></i>Дашборд</a>
-        <a class="nav-link" th:href="@{/jobs/search}"><i data-lucide="search"></i>Пошук</a>
-        <a class="nav-link active" th:href="@{/applications}"><i data-lucide="columns-3"></i>Заявки</a>
-    </div>
-    <form th:action="@{/logout}" method="post" class="logout-form">
-        <button class="nav-link nav-button" type="submit"><i data-lucide="log-out"></i>Вийти</button>
-    </form>
-</nav>
+<nav th:replace="~{fragments/navbar :: navbar('applications')}"></nav>
 
 <main class="content">
     <div class="page-header">
-        <div>
-            <h1 th:text="${jobApplication.title}">Java Developer</h1>
-            <p class="meta" th:text="${jobApplication.company + ' · ' + jobApplication.location}">Компанія · Hamburg</p>
+        <div class="job-title-row">
+            <span class="company-logo" th:text="${#strings.isEmpty(jobApplication.company) ? 'J' : #strings.substring(jobApplication.company, 0, 1)}">J</span>
+            <div>
+                <h1 th:text="${jobApplication.title}">Java Developer</h1>
+                <p class="meta" th:text="${jobApplication.company + ' · ' + jobApplication.location}">Company · Hamburg</p>
+            </div>
         </div>
-        <div class="header-actions">
+        <div class="card-actions">
             <a class="button ghost" th:href="@{/applications}">Назад</a>
             <a class="button primary" th:href="@{/applications/{id}/edit(id=${jobApplication.id})}">Редагувати</a>
         </div>
@@ -33,28 +26,22 @@
 
     <p class="alert success" th:if="${message}" th:text="${message}">Оновлено.</p>
 
-    <section>
-        <article class="panel details-panel">
+    <section class="details-grid">
+        <article class="panel">
+            <div class="chip-row">
+                <span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span>
+                <span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priorityLabel}">Середній</span>
+                <span class="chip" th:if="${jobApplication.jobType != null && !#strings.isEmpty(jobApplication.jobType)}" th:text="${jobApplication.jobType}">Full-time</span>
+                <span class="chip" th:if="${jobApplication.salary != null && !#strings.isEmpty(jobApplication.salary)}" th:text="${jobApplication.salary}">Salary</span>
+            </div>
+
+            <h2>Опис</h2>
+            <p class="description long" th:text="${jobApplication.description}">Опис вакансії</p>
+
             <dl class="details-list">
                 <div>
                     <dt>Оригінальна вакансія</dt>
-                    <dd><a class="text-link" th:href="${jobApplication.sourceUrl}" target="_blank" rel="noopener">Відкрити вакансію</a></dd>
-                </div>
-                <div>
-                    <dt>Статус</dt>
-                    <dd><span class="badge" th:classappend="${#strings.toLowerCase(jobApplication.status.name())}" th:text="${jobApplication.statusLabel}">Збережено</span></dd>
-                </div>
-                <div>
-                    <dt>Пріоритет</dt>
-                    <dd><span class="priority" th:classappend="${#strings.toLowerCase(jobApplication.priority.name())}" th:text="${jobApplication.priorityLabel}">Середній</span></dd>
-                </div>
-                <div>
-                    <dt>Зарплата</dt>
-                    <dd th:text="${jobApplication.salary ?: '—'}">—</dd>
-                </div>
-                <div>
-                    <dt>Тип зайнятості</dt>
-                    <dd th:text="${jobApplication.jobType ?: '—'}">—</dd>
+                    <dd><a class="text-link" th:href="${jobApplication.sourceUrl}" target="_blank" rel="noopener">Відкрити в Jooble</a></dd>
                 </div>
                 <div>
                     <dt>Створено</dt>
@@ -64,31 +51,56 @@
                     <dt>Оновлено</dt>
                     <dd th:text="${#temporals.format(jobApplication.updatedAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</dd>
                 </div>
+                <div>
+                    <dt>Джерело</dt>
+                    <dd>Jooble</dd>
+                </div>
             </dl>
-            <p class="description long" th:text="${jobApplication.description}">Опис</p>
         </article>
-    </section>
 
-    <section class="panel">
-        <div class="panel-header">
-            <h2>Нотатки</h2>
-            <span class="muted" th:text="${jobApplication.notes.size() + ' усього'}">0 усього</span>
-        </div>
-        <div class="empty-state" th:if="${#lists.isEmpty(jobApplication.notes)}"></div>
-        <div class="timeline">
-            <div class="note" th:each="note : ${jobApplication.notes}">
-                <p th:text="${note.text}">Текст нотатки</p>
-                <div class="note-footer">
-                    <time th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</time>
-                    <form th:action="@{/applications/{applicationId}/notes/{noteId}/delete(applicationId=${jobApplication.id},noteId=${note.id})}" method="post">
-                        <button class="link-button danger-text" type="submit">Видалити нотатку</button>
-                    </form>
+        <aside class="panel">
+            <div class="panel-header">
+                <h2>Нотатки</h2>
+                <span class="badge" th:text="${jobApplication.notes.size() + ' усього'}">0 усього</span>
+            </div>
+            <form class="form-stack compact-form" th:action="@{/applications/{id}/notes(id=${jobApplication.id})}" method="post" data-loading-form>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <label>
+                    Нова нотатка
+                    <textarea name="text" rows="3" placeholder="Наприклад: написати рекрутеру або підготуватися до співбесіди" required></textarea>
+                </label>
+                <button class="button primary" type="submit" data-loading-label="Додаємо...">Додати нотатку</button>
+            </form>
+
+            <div class="timeline compact-timeline">
+                <div class="note system-note">
+                    <p>Заявку створено</p>
+                    <time th:text="${#temporals.format(jobApplication.createdAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</time>
+                </div>
+                <div class="note system-note">
+                    <p>Останнє оновлення</p>
+                    <time th:text="${#temporals.format(jobApplication.updatedAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</time>
                 </div>
             </div>
-        </div>
+
+            <div class="empty-state compact-empty" th:if="${#lists.isEmpty(jobApplication.notes)}">Нотаток поки немає</div>
+            <div class="timeline">
+                <div class="note" th:each="note : ${jobApplication.notes}">
+                    <p th:text="${note.text}">Текст нотатки</p>
+                    <div class="note-footer">
+                        <time th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy HH:mm')}">01.06.2026</time>
+                        <form th:action="@{/applications/{applicationId}/notes/{noteId}/delete(applicationId=${jobApplication.id},noteId=${note.id})}" method="post" data-confirm="Видалити нотатку?">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="link-button danger-text" type="submit">Видалити</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </section>
 </main>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>if (window.lucide) lucide.createIcons();</script>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>
